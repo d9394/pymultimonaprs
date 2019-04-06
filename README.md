@@ -1,5 +1,6 @@
-pymultimonaprs
+pymultimonaprs for openwrt platform
 ==============
+forked from asdil12/pymultimonaprs
 
 RF2APRS-IG Gateway supporting this backends:
 
@@ -8,17 +9,17 @@ RF2APRS-IG Gateway supporting this backends:
 - RTL-SDR
 
 
-Installation
+Installation on openwrt
 ------------
 
 - Install multimonNG
 - Install rtl-sdr (for RTL-SDR backend)
-- Run `python2 setup.py install`
+- Run `/etc/init.d/pymultimonaprs`
 
 Configuration
 -------------
 
-Edit `/etc/pymultimonaprs.json`:
+Edit `/etc/pymultimonaprs/pymultimonaprs.json`:
 
 ### Backend
 
@@ -93,4 +94,4 @@ You use a raw IPv6 address as a gateway like this: `"[2000::1234]:14580"`.
 Running
 -------
 
-- Run `systemctl start pymultimonaprs` or just `pymultimonaprs -v` for testing
+- Run `/etc/init.d/pymultimonaprs` or just `python -u pymultimonaprs.py -v` for testing
