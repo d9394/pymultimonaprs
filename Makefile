@@ -21,10 +21,11 @@ define Package/pymultimonaprs/Default
   URL:=https://github.com/d9394/pymultimonaprs
 endef
 
-#define Build/Prepare
-#       mkdir -p $(PKG_BUILD_DIR)
-#       $(CP) /home/openwrt/tmp/multimon-ng/* $(PKG_BUILD_DIR)/
-#endef
+define Build/Prepare
+#	mkdir -p $(PKG_BUILD_DIR)
+#	$(CP) /home/openwrt/pymultimonaprs/* $(PKG_BUILD_DIR)/
+	$(call Build/Prepare/Default)
+endef
 
 define Package/pymultimonaprs
   $(call Package/pymultimonaprs/Default)
@@ -37,9 +38,12 @@ define Package/pymultimonaprs/description
   pymultimonaprs is a python tools to received aprs packet from RTL-SDR and decode, then send it to aprs network, sometimes we also call this : IGate.
 endef
 
+define Build/Compile
+endef
+
 define Package/pymultimonaprs/install
-			$(INSTALL_DIR) $(1)/etc/$(PKG_NAME)
-			$(INSTALL_BIN) $(PKG_BUILD_DIR)/$(PKG_NAME)/files/*.* $(1)/etc/$(PKG_NAME)/
+	$(INSTALL_DIR) $(1)/etc/$(PKG_NAME)
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/*.* $(1)/etc/$(PKG_NAME)/
 #       $(INSTALL_DIR) $(1)/etc/multimon-ng
 #       $(INSTALL_DATA) ./files/multimon-ng.template $(1)/etc/multimon-ng/config.template
 endef
