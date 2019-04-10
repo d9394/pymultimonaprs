@@ -38,8 +38,8 @@ define Package/pymultimonaprs/description
 endef
 
 define Package/pymultimonaprs/install
-        $(INSTALL_DIR) $(1)/etc/$(PKG_NAME)
-        $(INSTALL_BIN) $(PKG_BUILD_DIR)/$(PKG_NAME)/files/*.* $(1)/etc/$(PKG_NAME)/
+			$(INSTALL_DIR) $(1)/etc/$(PKG_NAME)
+			$(INSTALL_BIN) $(PKG_BUILD_DIR)/$(PKG_NAME)/files/*.* $(1)/etc/$(PKG_NAME)/
 #       $(INSTALL_DIR) $(1)/etc/multimon-ng
 #       $(INSTALL_DATA) ./files/multimon-ng.template $(1)/etc/multimon-ng/config.template
 endef
