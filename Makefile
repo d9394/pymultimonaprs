@@ -30,7 +30,7 @@ define Package/pymultimonaprs
   $(call Package/pymultimonaprs/Default)
   SECTION:=utils
   CATEGORY:=Utilities
-  DEPENDS:=+:multimon-ng +python-light +python-codecs +python-logging +python-opensl
+  DEPENDS:=+:multimon-ng +python-light +python-codecs +python-logging +python-openssl
 endef
 
 define Package/pymultimonaprs/description
