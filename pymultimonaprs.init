@@ -27,7 +27,7 @@ append_bool() {
 	[ "$val" = 1 ] && procd_append_param command "$opt"
 }
 
-get_config() {
+get_config_json() {
   local cfg="$1"
   
   
@@ -37,18 +37,18 @@ get_config() {
 }
 
 start_instance() {
-	local cfg="$1"
-	local aux
+  local cfg="$1"
+  local aux
   
   if [ ! -f /etc/config/pymultimonaprs ]; then
     echo config file not found.
     return 0
   fi
   
-	config_get_bool aux "$cfg" 'disabled' '0'
-	[ "$aux" = 1 ] && return 1
+  config_get_bool aux "$cfg" 'disabled' '0'
+  [ "$aux" = 1 ] && return 1
 
-  get_config $cfg
+  get_config_json $cfg
 
   procd_open_instance
   procd_set_param command "pythun -u /etc/pymultimonaprs.py"
