@@ -19,7 +19,7 @@ append_arg() {
 	if [ "$type" == "1"]; then
 		[ -n "$val" -o -n "$def" ] && procd_append_param command $opt "${val:-$def}"
 	else
-		[ -n "$val" -o -n "$def" ] && echo \"$cfg\"\:\"${val:-$def}\"\,\n >> $CFG_FILE
+		[ -n "$val" -o -n "$def" ] && echo -e \"$cfg\"\:\"${val:-$def}\"\,\n >> $CFG_FILE
 	fi
 }
 
@@ -36,9 +36,9 @@ append_bool() {
 		[ "$val" = 1 ] && procd_append_param command "$opt"
 	else
 		if [ "$val" -eq 1 ]; then
-			echo \"$cfg\"\:true\,\n >> $CFG_FILE
+			echo -e \"$cfg\"\:true\,\n >> $CFG_FILE
 		else
-			echo \"$cfg\"\:false\,\n >> $CFG_FILE
+			echo -e \"$cfg\"\:false\,\n >> $CFG_FILE
 		fi
 	fi
 }
@@ -61,30 +61,30 @@ append_list() {
 	local val
 	
 	config_list_foreach "$cfg" "$var" append_aprs_server
-	[ -n "$APRS_SERVER" -o -n "$def" ] && echo \"$cfg\"\:\[{$APRS_SERVER:-$def\]\,\n >> $CFG_FILE
+	[ -n "$APRS_SERVER" -o -n "$def" ] && echo -e \"$cfg\"\:\[{$APRS_SERVER:-$def\]\,\n >> $CFG_FILE
 }
 
 get_config_json() {
   local cfg="$1"
   local val
 
-  echo } > $CFG_FILE
+  echo { > $CFG_FILE
   append_arg 2 "$cfg" "callsign" "bb7is-5"
   append_arg 2 "$cfg" "passcode" "12345"
   append_list 2 "$cfg" "gateway" "\[\"202.141.176.2\:14580\"\,\"noam.aprs2.net\:14580\"\]"
   append_arg 2 "$cfg" "preferred_protocol" "any"
   append_bool 2 "$cfg" "append_callsign" 1
   append_arg 2 "$cfg" "source" "rtl"
-  echo \"rtl\"\:\{\n >> $CFG_FILE
+  echo -e \"rtl\"\:\{\n >> $CFG_FILE
   append_arg 2 "$cfg" "freq" "144.640000"
   append_arg 2 "$cfg" "ppm" "0"
   append_arg 2 "$cfg" "gain" "0"
   append_bool 2 "$cfg" "offset_tuning" 0
   append_arg 2 "$cfg" "device_index" "0"
   append_arg 2 "$cfg" "squelch_level" "1"
-  echo \}\,\n\"alsa\"\:\{\n >> $CFG_FILE
+  echo -e \}\,\n\"alsa\"\:\{\n >> $CFG_FILE
   append_arg 2 "$cfg" "device" "default"
-  echo \}\,\"beacon\"\:\{\n >> $CFG_FILE
+  echo -e \}\,\"beacon\"\:\{\n >> $CFG_FILE
   append_arg 2 "$cfg" "lat" "23.0000"
   append_arg 2 "$cfg" "lng" "113.0000"
   append_arg 2 "$cfg" "table" "R"
@@ -92,10 +92,10 @@ get_config_json() {
   append_arg 2 "$cfg" "comment" "PyMultimonAPRS iGate"
   append_arg 2 "$cfg" "send_every" "300"
   append_arg 2 "$cfg" "ambiguity" "0"
-  echo \"status\"\:\{\n >> $CFG_FILE
+  echo -e \"status\"\:\{\n >> $CFG_FILE
   append_arg 2 "$cfg" "text" "Running on Openwrt with RTL dongle"
   append_bool 2 "$cfg" "file" "0"
-  echo \}\n\}\n\} >> $CFG_FILE
+  echo -e \}\n\}\n\} >> $CFG_FILE
   
   
 }
