@@ -1,122 +1,139 @@
-#!/bin/bash
-### BEGIN INIT INFO
-# Provides: pymultimonaprs
-# Required-Start: $remote_fs $network $syslog
-# Required-Stop: $remote_fs $network $syslog
-# Default-Start: 2 3 4 5
-# Default-Stop: 0 1 6
-# Short-Description: start/stop of pymultimonaprs
-### END INIT INFO
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2014-2016 OpenWrt.org
 
-# for some reason debian doesn't have /usr/local/bin in PATH
-# when running init scripts
-PATH=/usr/local/bin:/sbin:/usr/sbin:/bin:/usr/bin
+START=90
+STOP=10
 
-NAME=pymultimonaprs
-# Exit if the package is not installed
-which "$NAME" >/dev/null || exit 1
-DAEMON=`which "$NAME"`
-DAEMON_ARGS="--syslog"
-PIDFILE=/var/run/$NAME.pid
-SCRIPTNAME=/etc/init.d/$NAME
+CFG_FILE="/tmp/etc/pymultimonaprs.json"
+APRS_SERVER=""
+ARGS=""
 
-# Load the VERBOSE setting and other rcS variables
-. /lib/init/vars.sh
+append_arg() {
+        local type="$1"
+        local cfg="$2"
+        local var="$3"
+        local opt="$4"
+        local def="$5"
+        local val
 
-# Define LSB log_* functions.
-# Depend on lsb-base (>= 3.2-14) to ensure that this file is present
-# and status_of_proc is working.
-. /lib/lsb/init-functions
-
-if [ "$1" == "start" ] || [ "$1" == "stop" ] || [ "$1" == "restart" ] ; then
-	if [ "`whoami`" != "root" ] ; then
-		echo "ERROR: This script must be called by root (or using sudo)"
-		exit 3
-	fi
-fi
-
-do_start()
-{
-	# Return
-	#   0 if daemon has been started
-	#   1 if daemon was already running
-	#   2 if daemon could not be started
-	if [ -f $PIDFILE ] ; then
-		if [ -e "/proc/`cat $PIDFILE`/cmdline" ] ; then
-			return 1
-		fi
-	fi
-	start-stop-daemon --start --quiet --make-pidfile --background --pidfile $PIDFILE --exec $DAEMON -- \
-		$DAEMON_ARGS \
-		|| return 2
+        config_get val "$cfg" "$var"
+        if [ "$type" == "1" ]; then
+                [ -n "$val" -o -n "$def" ] && ARGS=$ARGS" "$opt" "${val:-$def}
+        else
+                [ -n "$val" -o -n "$def" ] && echo -e \"$var\":\"${val:-$def}\", >> $CFG_FILE
+        fi
 }
 
-do_stop()
-{
-	# Return
-	#   0 if daemon has been stopped
-	#   1 if daemon was already stopped
-	#   2 if daemon could not be stopped
-	#   other if a failure occurred
-	start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --pidfile $PIDFILE --name $NAME
-	RETVAL="$?"
-	[ "$RETVAL" = 2 ] && return 2
-	# Wait for children to finish too if this is a daemon that forks
-	# and if the daemon is only ever run from this initscript.
-	# If the above conditions are not satisfied then add some other code
-	# that waits for the process to drop all resources that could be
-	# needed by services started subsequently.  A last resort is to
-	# sleep for some time.
-	start-stop-daemon --stop --quiet --oknodo --retry=0/30/KILL/5 --exec $DAEMON
-	[ "$?" = 2 ] && return 2
-	# Many daemons don't delete their pidfiles when they exit.
-	rm -f $PIDFILE
-	return "$RETVAL"
+append_bool() {
+        local type="$1"
+        local cfg="$2"
+        local var="$3"
+        local opt="$4"
+        local def="$5"
+        local val
+
+        config_get_bool val "$cfg" "$var" "$def"
+        if [ "$type" == "1" ]; then
+                [ "$val" = 1 ] && ARGS=$ARGS" "$opt
+        else
+                if [ "$val" -eq 1 ]; then
+                        echo -e \"$var\":true, >> $CFG_FILE
+                else
+                        echo -e \"$var\":false, >> $CFG_FILE
+                fi
+        fi
 }
 
-case "$1" in
-  start)
-	log_daemon_msg "Starting $DESC" "$NAME"
-	do_start
-	case "$?" in
-		0) log_end_msg 0 ;;
-		1) echo "" ; log_warning_msg "$NAME is already running" ;;
-		2) log_end_msg 1 ;;
-	esac
-	;;
-  stop)
-	log_daemon_msg "Stopping $DESC" "$NAME"
-	do_stop
-	case "$?" in
-		0|1) log_end_msg 0 ;;
-		2) log_end_msg 1 ;;
-	esac
-	;;
-  status)
-	status_of_proc "$DAEMON" "$NAME" && exit 0 || exit $?
-	;;
-  restart)
-	log_daemon_msg "Restarting $DESC" "$NAME"
-	do_stop
-	case "$?" in
-	  0|1)
-		do_start
-		case "$?" in
-			0) log_end_msg 0 ;;
-			1) log_end_msg 1 ;; # Old process is still running
-			*) log_end_msg 1 ;; # Failed to start
-		esac
-		;;
-	  *)
-		# Failed to stop
-		log_end_msg 1
-		;;
-	esac
-	;;
-  *)
-	echo "Usage: $SCRIPTNAME {start|stop|status|restart}" >&2
-	exit 3
-	;;
-esac
+append_aprs_server() {
+        local server="$1"
+        if [ "$APRS_SERVER" == "" ]; then
+                APRS_SERVER=\"$server\"
+        else
+                APRS_SERVER=$APRS_SERVER","\"$server\"
+        fi
+}
 
-:
+append_list() {
+        local type="$1"
+        local cfg="$2"
+        local var="$3"
+        local opt="$4"
+        local def="$5"
+        local val
+
+        config_list_foreach "$cfg" "$var" append_aprs_server
+        [ -n "$APRS_SERVER" -o -n "$def" ] && echo -e \"$var\":\[${APRS_SERVER:-$def}\]\, >> $CFG_FILE
+}
+
+get_config_json() {
+  local cfg="$1"
+  local val
+
+  echo { > $CFG_FILE
+  append_arg 2 "$cfg" "callsign" "" "aa1aa"
+  append_arg 2 "$cfg" "passcode" "" "00000"
+  append_list 2 "$cfg" "gateway" "" '"euro.aprs.fi:14580","china.aprs2.net:14580"'
+  append_arg 2 "$cfg" "preferred_protocol" "" "any"
+  append_bool 2 "$cfg" "append_callsign" "" 1
+  append_arg 2 "$cfg" "source" "" "rtl"
+  echo -e \"rtl\":{ >> $CFG_FILE
+  append_arg 2 "$cfg" "freq" "" "144.800000"
+  append_arg 2 "$cfg" "ppm" "" "0"
+  append_arg 2 "$cfg" "gain" "" "0"
+  append_bool 2 "$cfg" "offset_tuning" "" 0
+  append_arg 2 "$cfg" "device_index" "" "0"
+  append_arg 2 "$cfg" "squelch_level" "0"
+  echo -e "\"\":\"\"},\n"\"alsa\":{ >> $CFG_FILE
+  append_arg 2 "$cfg" "device" "" "default"
+  echo -e "\"\":\"\"},\n"\"beacon\":{ >> $CFG_FILE
+  append_arg 2 "$cfg" "lat" "" "10.0000"
+  append_arg 2 "$cfg" "lng" "" "10.0000"
+  append_arg 2 "$cfg" "table" "" "R"
+  append_arg 2 "$cfg" "symbol" "" "&"
+  append_arg 2 "$cfg" "comment" "" "PyMultimonAPRS iGate"
+  append_arg 2 "$cfg" "send_every" "" "300"
+  append_arg 2 "$cfg" "ambiguity" "" "0"
+  append_bool 2 "$cfg" "weather" "" "0"
+  echo -e \"status\":{ >> $CFG_FILE
+  append_arg 2 "$cfg" "text" "" "Running on Openwrt with RTL dongle"
+  append_bool 2 "$cfg" "file" "" "0"
+  echo -e "\"\":\"\"}\n}\n}" >> $CFG_FILE
+}
+
+start_instance() {
+  local cfg="$1"
+  local aux
+
+  if [ ! -f /etc/config/pymultimonaprs ]; then
+    echo config file not found.
+    return 1
+  fi
+
+  config_get_bool aux "$cfg" 'disabled' '0'
+  if [ "$aux" = 1 ]; then
+    stop
+    return 1
+  fi
+  get_config_json $cfg
+
+  append_bool 1 "$cfg" debug "-v"
+  append_arg 1 "$cfg" logging "--logfile"
+#  append_bool 1 "$cfg" syslog "--syslog"
+  echo starting pymultimonaprs with $ARGS
+  /usr/bin/python -u /etc/pymultimonaprs/pymultimonaprs.py -c /tmp/etc/pymultimonaprs.json $ARGS &
+}
+
+start() {
+  config_load pymultimonaprs
+  config_foreach start_instance pymultimonaprs
+}
+
+stop() {
+  ps | grep pymultimonaprs.py | grep -v grep | awk '{print $1}' | xargs kill -9
+  ps | grep rtl_fm | grep -v grep | awk '{print $1}' | xargs kill -9
+}
+
+restart() {
+  stop
+  start
+}
