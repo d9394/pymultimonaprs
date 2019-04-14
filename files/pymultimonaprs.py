@@ -61,13 +61,13 @@ def mmcb(tnc2_frame):
 
 def bc():
 	bcargs = {
-		'lat': config['beacon']['lat'],
-		'lng': config['beacon']['lng'],
+		'lat': float(config['beacon']['lat']),
+		'lng': float(config['beacon']['lng']),
 		'callsign': config['callsign'],
 		'table': config['beacon']['table'],
 		'symbol': config['beacon']['symbol'],
 		'comment': config['beacon']['comment'],
-		'ambiguity': config['beacon'].get('ambiguity', 0),
+		'ambiguity': int(config['beacon'].get('ambiguity', 0)),
 	}
 	bcargs_status = {
 		'callsign': config['callsign'],
@@ -93,7 +93,7 @@ def bc():
 		if frame:
 			ig.send(frame)
 
-		sleep(config['beacon']['send_every'])
+		sleep(int(config['beacon']['send_every']))
 
 logger.info("Starting pymultimonaprs")
 
