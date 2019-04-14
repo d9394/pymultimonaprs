@@ -45,6 +45,7 @@ define Package/pymultimonaprs/install
 	$(INSTALL_DIR) $(1)/etc/$(PKG_NAME)
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/*.py $(1)/etc/$(PKG_NAME)/
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/$(PKG_NAME).config $(1)/etc/config/$(PKG_NAME)
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/pymultimonaprs.init $(1)/etc/init.d/$(PKG_NAME)
 endef
 
 $(eval $(call BuildPackage,pymultimonaprs))
