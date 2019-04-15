@@ -68,7 +68,7 @@ def bc():
 		'symbol': config['beacon']['symbol'],
 		'comment': config['beacon']['comment'],
 		'ambiguity': int(config['beacon'].get('ambiguity', 0)),
-		'beacon': config['beacon'].get('beacon'),
+		'beacon': config['beacon']['beacon'],
 	}
 	bcargs_status = {
 		'callsign': config['callsign'],
