@@ -112,6 +112,7 @@ start_instance() {
 
   config_get_bool aux "$cfg" 'disabled' '0'
   if [ "$aux" = 1 ]; then
+    echo pymultimonaprs disabled
     stop
     return 1
   fi
