@@ -15,8 +15,10 @@ Installation on openwrt
 - Install multimonNG (https://github.com/d9394/multimon-ng_openwrt)
 - Install rtl-sdr (for RTL-SDR backend) (opkg update && opkg install rtl-sdr)
 - Install pymultimonaprs (opkg isntall pymultimonaprs-xxxx-xxxx.ipk
-- 
-- Run `/etc/init.d/pymultimonaprs`
+
+Run on openwrt
+------------
+- Run `/etc/init.d/pymultimonaprs start`
 
 Configuration
 -------------
@@ -98,4 +100,4 @@ You use a raw IPv6 address as a gateway like this: `"[2000::1234]:14580"`.
 Running
 -------
 
-- Run `/etc/init.d/pymultimonaprs` or just `python -u pymultimonaprs.py -v` for testing
+- Run `/etc/init.d/pymultimonaprs start` or just `python -u pymultimonaprs.py -v` for testing
