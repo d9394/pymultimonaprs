@@ -97,6 +97,7 @@ get_config_json() {
   echo -e \"status\":{ >> $CFG_FILE
   append_arg 2 "$cfg" "text" "" "Running on Openwrt with RTL dongle"
   append_bool 2 "$cfg" "file" "" "0"
+  append_bool 2 "$cfg" "beacon" "" "1"
   echo -e "\"\":\"\"}\n}\n}" >> $CFG_FILE
 }
 
