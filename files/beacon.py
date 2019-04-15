@@ -38,8 +38,8 @@ def mkframe(callsign, payload):
 	frame.payload = payload
 	return frame
 
-def get_beacon_frame(lat, lng, callsign, table, symbol, comment, ambiguity, enabled):
-	if enabled :
+def get_beacon_frame(lat, lng, callsign, table, symbol, comment, ambiguity, beacon):
+	if beacon :
 		enc_lat = process_ambiguity(encode_lat(lat), ambiguity)
 		enc_lng = process_ambiguity(encode_lng(lng), ambiguity)
 		pos = "%s%s%s" % (enc_lat, table, enc_lng)
