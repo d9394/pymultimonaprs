@@ -12,14 +12,18 @@ RF2APRS-IG Gateway supporting this backends:
 Installation on openwrt
 ------------
 
-- Install multimonNG
-- Install rtl-sdr (for RTL-SDR backend)
+- Install multimonNG (https://github.com/d9394/multimon-ng_openwrt)
+- Install rtl-sdr (for RTL-SDR backend) (opkg update && opkg install rtl-sdr)
+- Install pymultimonaprs (opkg isntall pymultimonaprs-xxxx-xxxx.ipk
+- 
 - Run `/etc/init.d/pymultimonaprs`
 
 Configuration
 -------------
 
-Edit `/etc/pymultimonaprs/pymultimonaprs.json`:
+- Edit `/etc/config/pymultimonaprs`:
+or:
+- Install luci-app-pymultimonaprs (https://github.com/d9394/luci-app-pymultimonaprs)
 
 ### Backend
 
